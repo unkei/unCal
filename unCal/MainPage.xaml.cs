@@ -25,47 +25,9 @@ namespace unCal
         {
             base.OnNavigatedTo(e);
 
-            genTiles();
+            setTileScroller();
 
-            BitmapImage bmp = new BitmapImage();
-
-            using (IsolatedStorageFile isto = IsolatedStorageFile.GetUserStoreForApplication())
-            {
-                using (IsolatedStorageFileStream isstr = isto.OpenFile("tile.jpg", System.IO.FileMode.Open, System.IO.FileAccess.Read))
-                {
-                    bmp.SetSource(isstr);
-                }
-            }
-            tilePreview.Source = bmp;
-            Grid.SetRow(tilePreview, 0);
-            Grid.SetColumn(tilePreview, 0);
-
-            //Button BackButton = new Button();
-            //BackButton.Content = "Back";
-            //BackButton.Height = 100;
-            //BackButton.Width = 200;
-
-            //ContentPanel.Children.Add(BackButton);
-            //Grid.SetRow(BackButton, 0);
-            //Grid.SetColumn(BackButton, 1);
-
-            Image tilePreview2 = new Image();
-            BitmapImage bmp2 = new BitmapImage();
-
-            using (IsolatedStorageFile isto = IsolatedStorageFile.GetUserStoreForApplication())
-            {
-                using (IsolatedStorageFileStream isstr = isto.OpenFile("tile2.jpg", System.IO.FileMode.Open, System.IO.FileAccess.Read))
-                {
-                    bmp2.SetSource(isstr);
-                }
-            }
-            tilePreview2.Source = bmp2;
-            tilePreview2.Margin = new Thickness(13);
-
-            ContentPanel.Children.Add(tilePreview2);
-            Grid.SetRow(tilePreview2, 0);
-            Grid.SetColumn(tilePreview2, 1);
-
+            ApplicationTitle.Text = "unCal - " + DateTime.Now.Year;
         }
 
         private Color getColor(string colorname)
@@ -75,6 +37,7 @@ namespace unCal
         }
 
         enum HAlign {CENTER, LEFT, RIGHT};
+        enum StringColor { NORMAL, HIGHLIGHT };
         const int TILE_WIDTH = 173;
         const int TILE_HEIGHT = 173;
         const int TILE_MARGIN = 3;
@@ -84,12 +47,21 @@ namespace unCal
         const int TEXT_ROW_HEIGHT = (TILE_HEIGHT - TILE_MARGIN * 2) / TILE_TEXT_ROW;
 
         // cx = 0..7, cy = 0..7
-        private void drawString(WriteableBitmap wb, int cx, int cy, string str, Color color, int fontsize = 14, HAlign halign = HAlign.LEFT, int xadj=0, int yadj=0)
+        private void drawString(WriteableBitmap wb, int cx, int cy, string str, StringColor sc, int fontsize = 14, HAlign halign = HAlign.LEFT, int xadj=0, int yadj=0)
         {
             TextBlock tb = new TextBlock();
             tb.Text = str;
             tb.FontSize = fontsize;
-            tb.Foreground = new SolidColorBrush(color);
+            if (sc == StringColor.HIGHLIGHT)
+            {
+                tb.Foreground = new SolidColorBrush(getColor("PhoneForegroundColor"));
+                //tb.Foreground = new SolidColorBrush(getColor("PhoneContrastForegroundColor"));
+                tb.FontWeight = System.Windows.FontWeights.Bold;
+            }
+            else
+            {
+                tb.Foreground = new SolidColorBrush(getColor("PhoneForegroundColor"));
+            }
 
             int x = TEXT_COL_WIDTH  * cx + TILE_MARGIN;
             int y = TEXT_ROW_HEIGHT * cy + TILE_MARGIN;
@@ -141,7 +113,7 @@ namespace unCal
             DateTime dec31_this = new DateTime(dt.Year,     12, 31);
             int wk;
             int wk_last = (dec31_this.DayOfYear - 1 + offset) / 7;
-            int lastDays = (wk_last - 1) *  7 - offset;
+            int lastDays = wk_last *  7 - offset;
 
             if (dayOfYear < 3 && offset < 0) // Jan is not wk1
             {
@@ -168,7 +140,7 @@ namespace unCal
             return day1.AddDays(-1).Day;
         }
 
-        public bool createCalendarImage(string filename, DateTime dt)
+        public bool createCalendarImage(string filename, DateTime dt, bool isHighlightToday=false)
         {
             WriteableBitmap wb = new WriteableBitmap(173,173);
 
@@ -184,15 +156,14 @@ namespace unCal
             wb.Render(rect, null);
 
             // Draw month and year
-            Color fc = getColor("PhoneForegroundColor");
-            drawString(wb, TILE_TEXT_COL / 2 - 1, 0, dt.ToString("y"), fc, 16, HAlign.CENTER, TEXT_COL_WIDTH/2);
+            drawString(wb, TILE_TEXT_COL / 2 - 1, 0, dt.ToString("y"), StringColor.NORMAL, 16, HAlign.CENTER, TEXT_COL_WIDTH/2);
 
             // Draw weekday
             for (int i = 0; i < 7; i++) // starting from Monday
             {
                 string wd = CultureInfo.CurrentCulture.DateTimeFormat.AbbreviatedDayNames[(i+1)%7];
                 if (wd.Length > 2) wd = wd.Substring(0,2); // take first 2 letter if long
-                drawString(wb, i+1, 1, wd, fc, 14, HAlign.CENTER, TEXT_COL_WIDTH/10);
+                drawString(wb, i + 1, 1, wd, StringColor.NORMAL, 14, HAlign.CENTER, TEXT_COL_WIDTH / 10);
             }
 
             DateTime day1 = new DateTime(dt.Year, dt.Month, 1);
@@ -202,14 +173,15 @@ namespace unCal
             DateTime lastDate = day1.AddMonths(1).AddDays(-1);
             int lastday = lastDate.Day;
 
-            int wk = getWeekNumber(day1) + 1; // 0 is wk1
+            int wk;// = getWeekNumber(day1) + 1; // 0 is wk1
             int y;
 
             // Draw week numbers and dates
             for (y = 0; y < 6; y++)
             {
                 int d = 0;
-                drawString(wb, 0, y + 2, Convert.ToString(wk), fc, 14, HAlign.CENTER, 0, TEXT_ROW_HEIGHT/10);
+                wk = getWeekNumber(day1.AddDays(y * 7)) + 1;
+                drawString(wb, 0, y + 2, Convert.ToString(wk), StringColor.NORMAL, 14, HAlign.CENTER, 0, TEXT_ROW_HEIGHT / 10);
                 if (day1OfYear < 4 && wk > 50) wk = 1;
                 else wk++;
 
@@ -218,7 +190,11 @@ namespace unCal
                     d = y * 7 + x - day1Weekday;
                     if (0 <= d && d < lastday)
                     {
-                        drawString(wb, x + 1, y + 2, Convert.ToString(d + 1), fc, 17, HAlign.RIGHT, -1);
+                        StringColor sc = StringColor.NORMAL;
+                        if (isHighlightToday == true && (d + 1) == DateTime.Now.Day)
+                            sc = StringColor.HIGHLIGHT;
+
+                        drawString(wb, x + 1, y + 2, Convert.ToString(d + 1), sc, 17, HAlign.RIGHT, -1);
                     }
                 }
                 if (d + 1 >= lastday) break;
@@ -243,7 +219,7 @@ namespace unCal
         {
             ShellTile TileToFind = ShellTile.ActiveTiles.FirstOrDefault(x => x.NavigationUri.ToString().Contains("DefaultTitle=unCal"));
 
-            bool isLine6Used = createCalendarImage("Shared\\ShellContent\\unCal.jpg", DateTime.Now);
+            bool isLine6Used = createCalendarImage("Shared\\ShellContent\\unCal.jpg", DateTime.Now, true);
 
             if (TileToFind == null)
             {
@@ -257,15 +233,53 @@ namespace unCal
             }
         }
 
-        private void genTiles()
+        private void setTileScroller()
         {
-            createCalendarImage("tile.jpg", DateTime.Now);
-            createCalendarImage("tile2.jpg", new DateTime(DateTime.Now.Year, DateTime.Now.AddMonths(1).Month, DateTime.Now.Day));
+            genTiles(DateTime.Now.Year);
 
-            //for (int i = 0; i < 12; i++)
-            //{
-            //    bool isLine6Used = createCalendarImage("Shared\\ShellContent\\unCal" + i + ".jpg", new DateTime(DateTime.Now.Year, i + 1, 1));
-            //}
+            const int MONTHS = 12;
+            const int MAX_COLS = 2;
+            const int MAX_ROWS = (MONTHS / MAX_COLS);
+
+            StackPanel v_sp = tileScroller;
+            StackPanel h_sp = null;
+
+            v_sp.Children.Clear();
+
+            for (int i = 0; i < MAX_ROWS; i++)
+            {
+                h_sp = new StackPanel();
+                h_sp.Orientation = System.Windows.Controls.Orientation.Horizontal;
+
+                for (int j = 0; j < MAX_COLS; j++)
+                {
+                    Image tileImage = new Image();
+                    BitmapImage bmp = new BitmapImage();
+
+                    using (IsolatedStorageFile isto = IsolatedStorageFile.GetUserStoreForApplication())
+                    {
+                        using (IsolatedStorageFileStream isstr = isto.OpenFile("tile" + (i * MAX_COLS + j + 1) + ".jpg", System.IO.FileMode.Open, System.IO.FileAccess.Read))
+                        {
+                            bmp.SetSource(isstr);
+                        }
+                    }
+                    tileImage.Width = 173;
+                    tileImage.Height = 173;
+                    tileImage.Source = bmp;
+                    tileImage.Margin = new Thickness(13, 0, 0, 13);
+                    h_sp.Children.Add(tileImage);
+                }
+
+                v_sp.Children.Add(h_sp);
+            }
+        }
+
+        private void genTiles(int year)
+        {
+            for (int i = 0; i < 12; i++)
+            {
+                createCalendarImage("tile" + (i + 1) + ".jpg", new DateTime(year, i + 1, 1));
+            }
         }
     }
 }
