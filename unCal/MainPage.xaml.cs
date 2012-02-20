@@ -37,17 +37,26 @@ namespace unCal
         }
 
         enum HAlign {CENTER, LEFT, RIGHT};
-        enum StringColor { NORMAL, HIGHLIGHT };
+        enum StringColor { DIMMED, NORMAL, HIGHLIGHT };
+        enum drawArea { MONTH, WKDAY, WKNUM, DAY };
         const int TILE_WIDTH = 173;
         const int TILE_HEIGHT = 173;
-        const int TILE_MARGIN = 3;
-        const int TILE_TEXT_ROW = 8;
-        const int TILE_TEXT_COL = 8;
-        const int TEXT_COL_WIDTH  = (TILE_WIDTH  - TILE_MARGIN * 2) / TILE_TEXT_COL;
-        const int TEXT_ROW_HEIGHT = (TILE_HEIGHT - TILE_MARGIN * 2) / TILE_TEXT_ROW;
 
-        // cx = 0..7, cy = 0..7
-        private void drawString(WriteableBitmap wb, int cx, int cy, string str, StringColor sc, int fontsize = 14, HAlign halign = HAlign.LEFT, int xadj=0, int yadj=0)
+        const int TOP_MARGIN = 2;
+        const int LEFT_MARGIN = 2;
+        const int WK_FONTSIZE = 14;
+        const int DAY_FONTSIZE = 18;
+        const int MONTH_FONTSIZE = 18;
+        const int WKDAY_FONTSIZE = 14;
+        
+        const int WK_WIDTH = WK_FONTSIZE + LEFT_MARGIN;
+        const int DAY_WIDTH = 22;
+
+        const int MONTH_HEIGHT = 22;
+        const int WKDAY_HEIGHT = 21;
+        const int DAY_HEIGHT = 21;
+
+        private void drawString(WriteableBitmap wb, int x, int y, string str, StringColor sc, int fontsize = 14, HAlign halign = HAlign.LEFT)
         {
             TextBlock tb = new TextBlock();
             tb.Text = str;
@@ -61,24 +70,35 @@ namespace unCal
             else
             {
                 tb.Foreground = new SolidColorBrush(getColor("PhoneForegroundColor"));
+                if (sc == StringColor.DIMMED)
+                {
+                    tb.Opacity = 0.5;
+                }
             }
 
-            int x = TEXT_COL_WIDTH  * cx + TILE_MARGIN;
-            int y = TEXT_ROW_HEIGHT * cy + TILE_MARGIN;
             switch (halign)
             {
                 case HAlign.CENTER:
-                    x += (TEXT_COL_WIDTH - (int)tb.ActualWidth) / 2;
+                    x -= (int)tb.ActualWidth / 2;
                     break;
                 case HAlign.RIGHT:
-                    x += TEXT_COL_WIDTH - (int)tb.ActualWidth;
+                    x -= (int)tb.ActualWidth;
                     break;
                 case HAlign.LEFT:
                     break;
             }
-            x += xadj;
-            y += yadj;
             wb.Render(tb, new TranslateTransform() { X = x, Y = y });
+
+            if (sc == StringColor.HIGHLIGHT)
+            {
+                // TODO : FIXME, line is not drawn at all ( and even not sure if this is right UI element)
+                Line ln = new Line();
+                ln.X1 = x;
+                ln.Y1 = y + tb.ActualHeight + 2;
+                ln.X2 = x + tb.ActualWidth;
+                ln.Y2 = y + tb.ActualHeight + 2;
+                wb.Render(ln, new TranslateTransform() { X = x, Y = y });
+            }
         }
 
         private static string GetLocalizedWeekdayName(DayOfWeek weekday)
@@ -115,7 +135,7 @@ namespace unCal
             int wk_last = (dec31_this.DayOfYear - 1 + offset) / 7;
             int lastDays = wk_last *  7 - offset;
 
-            if (dayOfYear < 3 && offset < 0) // Jan is not wk1
+            if (offset < 0 && dayOfYear + offset < 0) // given date falls into last year
             {
                 int dayOfYear_dec31 = dec31_this.DayOfYear - 1;
                 int offset_lastyear = getJan1Offset(dt.Year - 1);
@@ -130,7 +150,7 @@ namespace unCal
                 wk = (dayOfYear + offset) / 7;
             }
 
-            return wk;
+            return wk + 1; // +1 to start wk from wk1 (not wk0)
         }
 
         private int getLastDayOfMonth(DateTime dt)
@@ -140,9 +160,9 @@ namespace unCal
             return day1.AddDays(-1).Day;
         }
 
-        public bool createCalendarImage(string filename, DateTime dt, bool isHighlightToday=false)
+        public void createCalendarImage(string filename, DateTime dt, bool isHighlightToday=false)
         {
-            WriteableBitmap wb = new WriteableBitmap(173,173);
+            WriteableBitmap wb = new WriteableBitmap(TILE_WIDTH, TILE_HEIGHT);
 
             // Draw background in PhoneAccentColor (default tile background color)
             Color ac = getColor("PhoneAccentColor");
@@ -151,56 +171,54 @@ namespace unCal
             rect.Fill = new SolidColorBrush(ac);
             rect.StrokeThickness = 0;
             RectangleGeometry rectGeometry = new RectangleGeometry();
-            rectGeometry.Rect = new Rect(0, 0, 173, 173);
+            rectGeometry.Rect = new Rect(0, 0, TILE_WIDTH, TILE_HEIGHT);
             rect.Data = rectGeometry;
             wb.Render(rect, null);
 
             // Draw month and year
-            drawString(wb, TILE_TEXT_COL / 2 - 1, 0, dt.ToString("y"), StringColor.NORMAL, 16, HAlign.CENTER, TEXT_COL_WIDTH/2);
+            drawString(wb, TILE_WIDTH / 2, 0, dt.ToString("y"), StringColor.NORMAL, MONTH_FONTSIZE, HAlign.CENTER);
 
             // Draw weekday
             for (int i = 0; i < 7; i++) // starting from Monday
             {
                 string wd = CultureInfo.CurrentCulture.DateTimeFormat.AbbreviatedDayNames[(i+1)%7];
                 if (wd.Length > 2) wd = wd.Substring(0,2); // take first 2 letter if long
-                drawString(wb, i + 1, 1, wd, StringColor.NORMAL, 14, HAlign.CENTER, TEXT_COL_WIDTH / 10);
+                int x = DAY_WIDTH * i + DAY_WIDTH - WKDAY_FONTSIZE / 2 + WK_WIDTH + LEFT_MARGIN;
+                int y = MONTH_HEIGHT + TOP_MARGIN;
+                drawString(wb, x, y + 2/*adjust +2*/, wd, StringColor.NORMAL, WKDAY_FONTSIZE, HAlign.CENTER);
             }
 
-            DateTime day1 = new DateTime(dt.Year, dt.Month, 1);
-            int day1Weekday = (int)(day1.DayOfWeek + 6) % 7;
-
-            int day1OfYear = day1.DayOfYear;
-            DateTime lastDate = day1.AddMonths(1).AddDays(-1);
-            int lastday = lastDate.Day;
-
-            int wk;// = getWeekNumber(day1) + 1; // 0 is wk1
-            int y;
+            DateTime day1m = new DateTime(dt.Year, dt.Month, 1);
+            int day1mWeekday = (int)(day1m.DayOfWeek + 6) % 7;
+            DateTime day1w = day1m.AddDays(-day1mWeekday);
 
             // Draw week numbers and dates
-            for (y = 0; y < 6; y++)
+            for (int w = 0; w < 6; w++)
             {
-                int d = 0;
-                wk = getWeekNumber(day1.AddDays(y * 7)) + 1;
-                drawString(wb, 0, y + 2, Convert.ToString(wk), StringColor.NORMAL, 14, HAlign.CENTER, 0, TEXT_ROW_HEIGHT / 10);
-                if (day1OfYear < 4 && wk > 50) wk = 1;
-                else wk++;
+                DateTime monday = day1w.AddDays(w * 7);
+                int wk = getWeekNumber(monday);
+                int x = WK_WIDTH / 2; // +LEFT_MARGIN;
+                int y = DAY_HEIGHT * w + MONTH_HEIGHT + WKDAY_HEIGHT + TOP_MARGIN;
+                drawString(wb, x, y+2/*adjust +2*/, Convert.ToString(wk), StringColor.NORMAL, WK_FONTSIZE, HAlign.CENTER);
 
-                for (int x = 0; x < 7; x++)
+                for (int wd = 0; wd < 7; wd++)
                 {
-                    d = y * 7 + x - day1Weekday;
-                    if (0 <= d && d < lastday)
-                    {
-                        StringColor sc = StringColor.NORMAL;
-                        if (isHighlightToday == true && (d + 1) == DateTime.Now.Day)
-                            sc = StringColor.HIGHLIGHT;
+                    DateTime d = monday.AddDays(wd);
 
-                        drawString(wb, x + 1, y + 2, Convert.ToString(d + 1), sc, 17, HAlign.RIGHT, -1);
-                    }
+                    StringColor sc = StringColor.NORMAL;
+
+                    if (d.Month != dt.Month)
+                        sc = StringColor.DIMMED;
+                    if (isHighlightToday == true && d == DateTime.Today)
+                        sc = StringColor.HIGHLIGHT;
+                    if (wd == 7)
+                        sc = sc; // todo for Sunday color;
+
+                    x = DAY_WIDTH * wd + DAY_WIDTH + WK_WIDTH; // +LEFT_MARGIN;
+                    // same y for wk can be used
+                    drawString(wb, x, y, Convert.ToString(d.Day), sc, DAY_FONTSIZE, HAlign.RIGHT);
                 }
-                if (d + 1 >= lastday) break;
             }
-
-            bool isLine6Used = (y >= 5)? true: false;
 
             wb.Invalidate();
 
@@ -211,26 +229,24 @@ namespace unCal
                     wb.SaveJpeg(isstr, wb.PixelWidth, wb.PixelHeight, 0, 100);
                 }
             }
-
-            return isLine6Used;
         }
         
         private void pinButton_Click(object sender, EventArgs e)
         {
             ShellTile TileToFind = ShellTile.ActiveTiles.FirstOrDefault(x => x.NavigationUri.ToString().Contains("DefaultTitle=unCal"));
 
-            bool isLine6Used = createCalendarImage("Shared\\ShellContent\\unCal.jpg", DateTime.Now, true);
+            createCalendarImage("Shared\\ShellContent\\unCal.jpg", DateTime.Now, true);
+
+            StandardTileData tileData = new StandardTileData
+            {
+                BackgroundImage = new Uri("isostore:/Shared/ShellContent/unCal.jpg", UriKind.Absolute),
+            };
+            //tileData.Title = (isLine6Used) ? "                 unCal" : "unCal";
 
             if (TileToFind == null)
-            {
-                StandardTileData tileData = new StandardTileData
-                {
-                    BackgroundImage = new Uri("isostore:/Shared/ShellContent/unCal.jpg", UriKind.Absolute),
-                };
-                tileData.Title = (isLine6Used) ? "                 unCal" : "unCal";
-
                 ShellTile.Create(new Uri("/MainPage.xaml?DefaultTitle=unCal", UriKind.Relative), tileData);
-            }
+            else
+                TileToFind.Update(tileData);
         }
 
         private void setTileScroller()
