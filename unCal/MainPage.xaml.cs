@@ -44,8 +44,8 @@ namespace unCal
 
         const int TOP_MARGIN = 2;
         const int LEFT_MARGIN = 2;
-        const int WK_FONTSIZE = 14;
-        const int DAY_FONTSIZE = 18;
+        const int WK_FONTSIZE = 12;
+        const int DAY_FONTSIZE = 16;
         const int MONTH_FONTSIZE = 18;
         const int WKDAY_FONTSIZE = 14;
         
@@ -60,6 +60,7 @@ namespace unCal
         {
             TextBlock tb = new TextBlock();
             tb.Text = str;
+            tb.FontFamily = new FontFamily("Segoe WP Light");
             tb.FontSize = fontsize;
             if (sc == StringColor.HIGHLIGHT)
             {
@@ -199,7 +200,7 @@ namespace unCal
                 int wk = getWeekNumber(monday);
                 int x = WK_WIDTH / 2; // +LEFT_MARGIN;
                 int y = DAY_HEIGHT * w + MONTH_HEIGHT + WKDAY_HEIGHT + TOP_MARGIN;
-                drawString(wb, x, y+2/*adjust +2*/, Convert.ToString(wk), StringColor.NORMAL, WK_FONTSIZE, HAlign.CENTER);
+                drawString(wb, x+1/*adj+1*/, y+3/*adj+3*/, Convert.ToString(wk), StringColor.NORMAL, WK_FONTSIZE, HAlign.CENTER);
 
                 for (int wd = 0; wd < 7; wd++)
                 {
