@@ -4,11 +4,14 @@ using System.Linq;
 using System.IO.IsolatedStorage;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
+using System.Diagnostics;
 using MediaColor = System.Windows.Media.Color;
 
 namespace unCal
@@ -42,19 +45,19 @@ namespace unCal
         const int TILE_WIDTH = 173;
         const int TILE_HEIGHT = 173;
 
-        const int TOP_MARGIN = 2;
+        const int TOP_MARGIN = 6;
         const int LEFT_MARGIN = 2;
         const int WK_FONTSIZE = 12;
         const int DAY_FONTSIZE = 16;
-        const int MONTH_FONTSIZE = 18;
+        const int MONTH_FONTSIZE = 20;
         const int WKDAY_FONTSIZE = 14;
         
         const int WK_WIDTH = WK_FONTSIZE + LEFT_MARGIN;
         const int DAY_WIDTH = 22;
 
-        const int MONTH_HEIGHT = 22;
-        const int WKDAY_HEIGHT = 21;
-        const int DAY_HEIGHT = 21;
+        const int MONTH_HEIGHT = MONTH_FONTSIZE + 6;
+        const int WKDAY_HEIGHT = 19;
+        const int DAY_HEIGHT = 19;
 
         private void drawString(WriteableBitmap wb, int x, int y, string str, StringColor sc, int fontsize = 14, HAlign halign = HAlign.LEFT)
         {
@@ -284,11 +287,25 @@ namespace unCal
                     tileImage.Height = 173;
                     tileImage.Source = bmp;
                     tileImage.Margin = new Thickness(13, 0, 0, 13);
+                    tileImage.Name = "month" + (i * 2 + j + 1);
+                    tileImage.MouseLeftButtonDown += new MouseButtonEventHandler(tilePressed);
+                    tileImage.RenderTransform = new CompositeTransform();
+
+                    tileImage.RenderTransformOrigin = new Point(0.5, 0.5);
                     h_sp.Children.Add(tileImage);
                 }
 
                 v_sp.Children.Add(h_sp);
             }
+        }
+
+        private void tilePressed(object sender, EventArgs e)
+        {
+            Debug.WriteLine("tilePressed");
+            tapAnim.Stop();
+            tapAnim.Children[0].SetValue(Storyboard.TargetNameProperty, ((Image)sender).Name);
+            tapAnim.Children[1].SetValue(Storyboard.TargetNameProperty, ((Image)sender).Name);
+            tapAnim.Begin();
         }
 
         private void genTiles(int year)
