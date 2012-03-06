@@ -30,7 +30,7 @@ namespace unCal
 
             setTileScroller();
 
-            ApplicationTitle.Text = "unCal - " + DateTime.Now.Year;
+            ApplicationTitle.Text = "unCal - " + DateTime.Now.Year + " - w" + getWeekNumber(DateTime.Now) + "\t" + DateTime.Now.ToString("m");
         }
 
         private Color getColor(string colorname)
@@ -67,9 +67,13 @@ namespace unCal
             tb.FontSize = fontsize;
             if (sc == StringColor.HIGHLIGHT)
             {
+                //tb.FontFamily = new FontFamily("Segoe WP");
+                //tb.FontSize = fontsize + 1.0;
+                //y--;
                 tb.Foreground = new SolidColorBrush(getColor("PhoneForegroundColor"));
                 //tb.Foreground = new SolidColorBrush(getColor("PhoneContrastForegroundColor"));
                 tb.FontWeight = System.Windows.FontWeights.Bold;
+                tb.TextDecorations = TextDecorations.Underline;
             }
             else
             {
@@ -189,12 +193,13 @@ namespace unCal
                 if (wd.Length > 2) wd = wd.Substring(0,2); // take first 2 letter if long
                 int x = DAY_WIDTH * i + DAY_WIDTH - WKDAY_FONTSIZE / 2 + WK_WIDTH + LEFT_MARGIN;
                 int y = MONTH_HEIGHT + TOP_MARGIN;
-                drawString(wb, x, y + 2/*adjust +2*/, wd, StringColor.NORMAL, WKDAY_FONTSIZE, HAlign.CENTER);
+                drawString(wb, x-2, y + 2/*adjust +2*/, wd, StringColor.NORMAL, WKDAY_FONTSIZE, HAlign.CENTER);
             }
 
             DateTime day1m = new DateTime(dt.Year, dt.Month, 1);
             int day1mWeekday = (int)(day1m.DayOfWeek + 6) % 7;
             DateTime day1w = day1m.AddDays(-day1mWeekday);
+            int thisweek = getWeekNumber(DateTime.Now);
 
             // Draw week numbers and dates
             for (int w = 0; w < 6; w++)

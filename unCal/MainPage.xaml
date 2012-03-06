@@ -59,9 +59,9 @@
     <phone:PhoneApplicationPage.ApplicationBar>
         <shell:ApplicationBar IsVisible="True" IsMenuEnabled="True">
             <shell:ApplicationBarIconButton IconUri="/icons/MB_0001_pin.png" Text="Pin" x:Name="pinButton" Click="pinButton_Click"/>
-            <shell:ApplicationBar.MenuItems>
+            <!--<shell:ApplicationBar.MenuItems>
                 <shell:ApplicationBarMenuItem Text="Settings"/>
-            </shell:ApplicationBar.MenuItems>
+            </shell:ApplicationBar.MenuItems>-->
         </shell:ApplicationBar>
     </phone:PhoneApplicationPage.ApplicationBar>
 
