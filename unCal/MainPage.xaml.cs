@@ -290,6 +290,7 @@ namespace unCal
                     tileImage.Name = "month" + (i * 2 + j + 1);
                     tileImage.MouseLeftButtonDown += new MouseButtonEventHandler(tilePressed);
                     tileImage.RenderTransform = new CompositeTransform();
+                    tileImage.Projection = new PlaneProjection();
 
                     tileImage.RenderTransformOrigin = new Point(0.5, 0.5);
                     h_sp.Children.Add(tileImage);
@@ -299,13 +300,28 @@ namespace unCal
             }
         }
 
-        private void tilePressed(object sender, EventArgs e)
+        private void tilePressed(object sender, MouseButtonEventArgs e)
         {
             Debug.WriteLine("tilePressed");
-            tapAnim.Stop();
-            tapAnim.Children[0].SetValue(Storyboard.TargetNameProperty, ((Image)sender).Name);
-            tapAnim.Children[1].SetValue(Storyboard.TargetNameProperty, ((Image)sender).Name);
-            tapAnim.Begin();
+            int x = (int)(e.GetPosition((UIElement)sender).X / TILE_WIDTH * 3) - 1;
+            int y = (int)(e.GetPosition((UIElement)sender).Y / TILE_HEIGHT * 3) - 1;
+
+            if (x == 0 && y == 0)
+            {
+                tapAnimc.Stop();
+                tapAnimc.Children[0].SetValue(Storyboard.TargetNameProperty, ((Image)sender).Name);
+                tapAnimc.Children[1].SetValue(Storyboard.TargetNameProperty, ((Image)sender).Name);
+                tapAnimc.Begin();
+            }
+            else
+            {
+                tapAnim.Stop();
+                tapAnim.Children[0].SetValue(Storyboard.TargetNameProperty, ((Image)sender).Name);
+                ((DoubleAnimationUsingKeyFrames)tapAnim.Children[0]).KeyFrames[0].SetValue(EasingDoubleKeyFrame.ValueProperty, 15.0 * y);
+                tapAnim.Children[1].SetValue(Storyboard.TargetNameProperty, ((Image)sender).Name);
+                ((DoubleAnimationUsingKeyFrames)tapAnim.Children[1]).KeyFrames[0].SetValue(EasingDoubleKeyFrame.ValueProperty, 15.0 * -x);
+                tapAnim.Begin();
+            }
         }
 
         private void genTiles(int year)

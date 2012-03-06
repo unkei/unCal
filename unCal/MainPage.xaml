@@ -13,17 +13,27 @@
     SupportedOrientations="Portrait" Orientation="Portrait"
     shell:SystemTray.IsVisible="True">
 	<phone:PhoneApplicationPage.Resources>
-		<Storyboard x:Name="tapAnim">
+		<Storyboard x:Name="tapAnimc">
 			<DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.ScaleX)" Storyboard.TargetName="">
-                <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="0.95"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="0.97"/>
 				<EasingDoubleKeyFrame KeyTime="0:0:0.2" Value="1"/>
 			</DoubleAnimationUsingKeyFrames>
 			<DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.ScaleY)" Storyboard.TargetName="">
-                <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="0.95"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="0.97"/>
                 <EasingDoubleKeyFrame KeyTime="0:0:0.2" Value="1"/>
             </DoubleAnimationUsingKeyFrames>
-		</Storyboard>
-	</phone:PhoneApplicationPage.Resources>
+        </Storyboard>
+        <Storyboard x:Name="tapAnim">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Projection).(PlaneProjection.RotationX)" Storyboard.TargetName="">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="15"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.2" Value="0"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Projection).(PlaneProjection.RotationY)" Storyboard.TargetName="">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="15"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.2" Value="0"/>
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+    </phone:PhoneApplicationPage.Resources>
 
     <!--LayoutRoot is the root grid where all page content is placed-->
     <Grid x:Name="LayoutRoot" Background="Transparent">
