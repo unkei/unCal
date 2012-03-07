@@ -30,7 +30,7 @@ namespace unCal
 
             setTileScroller();
 
-            ApplicationTitle.Text = "unCal - " + DateTime.Now.Year + " - w" + getWeekNumber(DateTime.Now) + "\t" + DateTime.Now.ToString("m");
+            ApplicationTitle.Text = "w" + getWeekNumber(DateTime.Now) + "\t\t" + DateTime.Now.ToString("D");
         }
 
         private Color getColor(string colorname)
@@ -42,28 +42,28 @@ namespace unCal
         enum HAlign {CENTER, LEFT, RIGHT};
         enum StringColor { DIMMED, NORMAL, HIGHLIGHT };
         enum drawArea { MONTH, WKDAY, WKNUM, DAY };
-        const int TILE_WIDTH = 173;
-        const int TILE_HEIGHT = 173;
+        const int TILE_WIDTH = 200; //173
+        const int TILE_HEIGHT = 200; //173
 
         const int TOP_MARGIN = 6;
         const int LEFT_MARGIN = 2;
-        const int WK_FONTSIZE = 12;
-        const int DAY_FONTSIZE = 16;
-        const int MONTH_FONTSIZE = 20;
-        const int WKDAY_FONTSIZE = 14;
+        const int WK_FONTSIZE = 12+2;
+        const int DAY_FONTSIZE = 16+2;
+        const int MONTH_FONTSIZE = 20+2;
+        const int WKDAY_FONTSIZE = 14+2;
         
         const int WK_WIDTH = WK_FONTSIZE + LEFT_MARGIN;
-        const int DAY_WIDTH = 22;
+        const int DAY_WIDTH = 22+3;
 
         const int MONTH_HEIGHT = MONTH_FONTSIZE + 6;
-        const int WKDAY_HEIGHT = 19;
-        const int DAY_HEIGHT = 19;
+        const int WKDAY_HEIGHT = 19+2;
+        const int DAY_HEIGHT = 19+3;
 
-        private void drawString(WriteableBitmap wb, int x, int y, string str, StringColor sc, int fontsize = 14, HAlign halign = HAlign.LEFT)
+        private void drawString(WriteableBitmap wb, int x, int y, string str, StringColor sc, int fontsize = 14, HAlign halign = HAlign.LEFT, string fnt="Segoe WP Light")
         {
             TextBlock tb = new TextBlock();
             tb.Text = str;
-            tb.FontFamily = new FontFamily("Segoe WP Light");
+            tb.FontFamily = new FontFamily(fnt);
             tb.FontSize = fontsize;
             if (sc == StringColor.HIGHLIGHT)
             {
@@ -168,7 +168,7 @@ namespace unCal
             return day1.AddDays(-1).Day;
         }
 
-        public void createCalendarImage(string filename, DateTime dt, bool isHighlightToday=false)
+        public void createCalendarImage(string filename, DateTime dt, bool isHighlightToday=true)
         {
             WriteableBitmap wb = new WriteableBitmap(TILE_WIDTH, TILE_HEIGHT);
 
@@ -184,7 +184,7 @@ namespace unCal
             wb.Render(rect, null);
 
             // Draw month and year
-            drawString(wb, TILE_WIDTH / 2, 0, dt.ToString("y"), StringColor.NORMAL, MONTH_FONTSIZE, HAlign.CENTER);
+            drawString(wb, TILE_WIDTH / 2, TOP_MARGIN, dt.ToString("y").ToUpper().Replace(",", " "), StringColor.NORMAL, DAY_FONTSIZE, HAlign.CENTER, "Segoe WP");
 
             // Draw weekday
             for (int i = 0; i < 7; i++) // starting from Monday
@@ -218,7 +218,7 @@ namespace unCal
 
                     if (d.Month != dt.Month)
                         sc = StringColor.DIMMED;
-                    if (isHighlightToday == true && d == DateTime.Today)
+                    if (isHighlightToday == true && d.Month == dt.Month && d == DateTime.Today)
                         sc = StringColor.HIGHLIGHT;
                     if (wd == 7)
                         sc = sc; // todo for Sunday color;
@@ -226,6 +226,11 @@ namespace unCal
                     x = DAY_WIDTH * wd + DAY_WIDTH + WK_WIDTH; // +LEFT_MARGIN;
                     // same y for wk can be used
                     drawString(wb, x, y, Convert.ToString(d.Day), sc, DAY_FONTSIZE, HAlign.RIGHT);
+                }
+
+                if (wk == thisweek)
+                {
+
                 }
             }
 
@@ -288,8 +293,8 @@ namespace unCal
                             bmp.SetSource(isstr);
                         }
                     }
-                    tileImage.Width = 173;
-                    tileImage.Height = 173;
+                    tileImage.Width = TILE_WIDTH;
+                    tileImage.Height = TILE_HEIGHT;
                     tileImage.Source = bmp;
                     tileImage.Margin = new Thickness(13, 0, 0, 13);
                     tileImage.Name = "month" + (i * 2 + j + 1);
