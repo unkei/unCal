@@ -2,6 +2,8 @@
 using System.Windows.Navigation;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
+using Microsoft.Phone.Scheduler;
+using System;
 
 namespace unCal
 {
@@ -47,6 +49,18 @@ namespace unCal
                 PhoneApplicationService.Current.UserIdleDetectionMode = IdleDetectionMode.Disabled;
             }
 
+            string TASK_NAME = "Task";
+
+            var oldTask = ScheduledActionService.Find(TASK_NAME);
+            if (oldTask != null)
+            {
+                ScheduledActionService.Remove(TASK_NAME);
+            }
+
+            PeriodicTask task = new PeriodicTask(TASK_NAME);
+            task.Description = "The background task updates Live Tile";
+            task.ExpirationTime = DateTime.Now.AddDays(1);
+            ScheduledActionService.Add(task);
         }
 
         // Code to execute when the application is launching (eg, from Start)

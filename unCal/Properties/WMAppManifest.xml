@@ -21,6 +21,12 @@
     </Capabilities>
     <Tasks>
       <DefaultTask  Name ="_default" NavigationPage="MainPage.xaml"/>
+      <ExtendedTask Name="backgroundTasks">
+        <BackgroundServiceAgent Specifier="ScheduledTaskAgent"
+                                Name="TileUpdate"
+                                Source="unCal"
+                                Type="unCal.ScheduledAgent" />
+      </ExtendedTask>
     </Tasks>
     <Tokens>
       <PrimaryToken TokenID="unCalToken" TaskName="_default">

@@ -59,6 +59,7 @@
     <phone:PhoneApplicationPage.ApplicationBar>
         <shell:ApplicationBar IsVisible="True" IsMenuEnabled="True">
             <shell:ApplicationBarIconButton IconUri="/icons/MB_0001_pin.png" Text="Pin" x:Name="pinButton" Click="pinButton_Click"/>
+            <shell:ApplicationBarIconButton IconUri="/icons/appbar.refresh.rest.png" IsEnabled="True" Text="Refresh" x:Name="refreshButton" Click="refreshButton_Click"/>
             <!--<shell:ApplicationBar.MenuItems>
                 <shell:ApplicationBarMenuItem Text="Settings"/>
             </shell:ApplicationBar.MenuItems>-->

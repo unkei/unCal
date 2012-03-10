@@ -1,3 +1,5 @@
 unCal/Bin/
 unCal/icons/
 unCal/obj/
+unCal/PerformanceLogs
+*.sap
