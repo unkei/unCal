@@ -7,9 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Windows.Shapes;
 using Microsoft.Phone.Controls;
-using Microsoft.Phone.Scheduler;
 using Microsoft.Phone.Shell;
 using System.Diagnostics;
 using System.Windows.Media.Imaging;
@@ -39,7 +37,9 @@ namespace unCal
             bool updated = settings.updateIfChanged(CultureInfo.CurrentCulture.ToString(), DateTime.Today);
             genTiles(DateTime.Now.Year, updated);
             setTileScroller();
-            ApplicationTitle.Text = "w" + wc.getWeekNumber(DateTime.Now) + "\t\t" + DateTime.Now.ToString("D");
+            ApplicationTitle.Text = "w" + wc.getWeekNumber(DateTime.Now) + "\t\t" + DateTime.Now.ToString("D").ToUpper();
+            if (CultureInfo.CurrentCulture.ToString().StartsWith("ja"))
+                ApplicationTitle.Text += " " + CultureInfo.CurrentCulture.DateTimeFormat.DayNames[int.Parse(DateTime.Now.DayOfWeek.ToString("d"))];
 
             //if (liveTile() == null)
             //    pinButton.IsEnabled = true;

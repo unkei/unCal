@@ -1,8 +1,5 @@
 ﻿using System;
 using System.IO.IsolatedStorage;
-using System.Diagnostics;
-using System.Collections.Generic;
-using System.Globalization;
 
 namespace unCal
 {
