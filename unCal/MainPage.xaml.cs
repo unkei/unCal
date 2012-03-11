@@ -9,6 +9,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using Microsoft.Phone.Controls;
+using Microsoft.Phone.Scheduler;
 using Microsoft.Phone.Shell;
 using System.Diagnostics;
 using System.Windows.Media.Imaging;
@@ -107,6 +108,10 @@ namespace unCal
 
         private void tilePressed(object sender, MouseButtonEventArgs e)
         {
+#if DEBUG
+            ScheduledActionService.LaunchForTest("TileUpdate",TimeSpan.FromSeconds(10));
+#endif
+
             Debug.WriteLine("tilePressed");
             int x = (int)(e.GetPosition((UIElement)sender).X / TILE_WIDTH * 3) - 1;
             int y = (int)(e.GetPosition((UIElement)sender).Y / TILE_HEIGHT * 3) - 1;

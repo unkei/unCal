@@ -49,7 +49,7 @@ namespace unCal
                 PhoneApplicationService.Current.UserIdleDetectionMode = IdleDetectionMode.Disabled;
             }
 
-            string TASK_NAME = "Task";
+            string TASK_NAME = "TileUpdate";
 
             var oldTask = ScheduledActionService.Find(TASK_NAME);
             if (oldTask != null)

@@ -83,9 +83,6 @@
   <ItemGroup>
     <None Include="Properties\AppManifest.xml" />
     <None Include="Properties\WMAppManifest.xml" />
-    <None Include="unCal_2012_03_08_23_15_51.sap" />
-    <None Include="unCal_2012_03_08_23_18_18.sap" />
-    <None Include="unCal_2012_03_08_23_35_00.sap" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="ApplicationIcon.png">
@@ -103,6 +100,12 @@
     <Content Include="icons\MB_0001_pin.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TileUpdate\TileUpdate.csproj">
+      <Project>{379306C1-B4E3-4B06-BC5C-CFD020D06D1F}</Project>
+      <Name>TileUpdate</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\Silverlight for Phone\$(TargetFrameworkVersion)\Microsoft.Silverlight.$(TargetFrameworkProfile).Overrides.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\Silverlight for Phone\$(TargetFrameworkVersion)\Microsoft.Silverlight.CSharp.targets" />

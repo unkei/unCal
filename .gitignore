@@ -3,3 +3,7 @@ unCal/icons/
 unCal/obj/
 unCal/PerformanceLogs
 *.sap
+TileUpdate/Bin/
+TileUpdate/icons/
+TileUpdate/obj/
+TileUpdate/PerformanceLogs

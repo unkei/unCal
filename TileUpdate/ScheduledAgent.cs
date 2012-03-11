@@ -1,6 +1,9 @@
 ﻿using System.Windows;
 using Microsoft.Phone.Scheduler;
 using System;
+using System.Diagnostics;
+using Microsoft.Phone.Shell;
+using System.Linq;
 
 namespace TileUpdate
 {
@@ -46,8 +49,23 @@ namespace TileUpdate
         /// </remarks>
         protected override void OnInvoke(ScheduledTask task)
         {
-            //TODO: Add code to perform your task in background
-            wc.createCalendarImage("Shared\\ShellContent\\unCal.jpg", DateTime.Now, true, true);
+            Debug.WriteLine("Tile Update bg-agent invoked.");
+
+            Deployment.Current.Dispatcher.BeginInvoke(() =>
+            {
+                ShellTile TileToFind = ShellTile.ActiveTiles.FirstOrDefault(x => x.NavigationUri.ToString().Contains("DefaultTitle=unCal"));
+
+                if (TileToFind != null)
+                {
+                    wc.createCalendarImage("Shared\\ShellContent\\unCal.jpg", DateTime.Now, true, true);
+
+                    StandardTileData tileData = new StandardTileData
+                    {
+                        BackgroundImage = new Uri("isostore:/Shared/ShellContent/unCal.jpg", UriKind.Absolute),
+                    };
+                    TileToFind.Update(tileData);
+                }
+            });
 
             NotifyComplete();
         }
