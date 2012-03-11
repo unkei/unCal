@@ -5,7 +5,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using MediaColor = System.Windows.Media.Color;
 
-namespace unCal
+namespace libWkCal
 {
     public class GraphicsHelper
     {
@@ -32,7 +32,7 @@ namespace unCal
                 tb.Foreground = new SolidColorBrush(getColor("PhoneForegroundColor"));
                 //tb.Foreground = new SolidColorBrush(getColor("PhoneContrastForegroundColor"));
                 tb.FontWeight = System.Windows.FontWeights.Bold;
-                tb.TextDecorations = TextDecorations.Underline;
+                //tb.TextDecorations = TextDecorations.Underline;
             }
             else
             {
@@ -79,5 +79,18 @@ namespace unCal
             rect.Data = rectGeometry;
             wb.Render(rect, new MatrixTransform());
         }
+
+        static public void drawBox(WriteableBitmap wb, int x, int y, int w, int h, Color ac)
+        {
+            Path rect = new Path();
+            rect.Stroke = new SolidColorBrush(ac);
+            rect.Fill = new SolidColorBrush(Colors.Transparent);
+            rect.StrokeThickness = 1;
+            RectangleGeometry rectGeometry = new RectangleGeometry();
+            rectGeometry.Rect = new Rect(x, y, w, h);
+            rect.Data = rectGeometry;
+            wb.Render(rect, new MatrixTransform());
+        }
+
     }
 }

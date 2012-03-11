@@ -13,6 +13,7 @@ using Microsoft.Phone.Scheduler;
 using Microsoft.Phone.Shell;
 using System.Diagnostics;
 using System.Windows.Media.Imaging;
+using libWkCal;
 
 namespace unCal
 {
@@ -22,12 +23,12 @@ namespace unCal
         const string FILE_PREFIX = "cal";
         const int TILE_WIDTH = 200;
         const int TILE_HEIGHT = 200;
+        AppSettings settings = new AppSettings();
 
         // Constructor
         public MainPage()
         {
             InitializeComponent();
-
             genTiles(DateTime.Now.Year);
         }
 
@@ -35,15 +36,25 @@ namespace unCal
         {
             base.OnNavigatedTo(e);
 
-
+            bool updated = settings.updateIfChanged(CultureInfo.CurrentCulture.ToString(), DateTime.Today);
+            genTiles(DateTime.Now.Year, updated);
             setTileScroller();
-
             ApplicationTitle.Text = "w" + wc.getWeekNumber(DateTime.Now) + "\t\t" + DateTime.Now.ToString("D");
+
+            //if (liveTile() == null)
+            //    pinButton.IsEnabled = true;
+            //else
+            //    pinButton.IsEnabled = false;
+        }
+
+        private ShellTile liveTile()
+        {
+            return ShellTile.ActiveTiles.FirstOrDefault(x => x.NavigationUri.ToString().Contains("DefaultTitle=unCal"));
         }
 
         private void pinButton_Click(object sender, EventArgs e)
         {
-            ShellTile TileToFind = ShellTile.ActiveTiles.FirstOrDefault(x => x.NavigationUri.ToString().Contains("DefaultTitle=unCal"));
+            ShellTile TileToFind = liveTile();
 
             wc.createCalendarImage("Shared\\ShellContent\\unCal.jpg", DateTime.Now, true, true);
 
@@ -71,6 +82,8 @@ namespace unCal
             StackPanel h_sp = null;
 
             v_sp.Children.Clear();
+
+            //v_sp.Children.Add(new StackPanel { Height = 60 });
 
             for (int i = 0; i < MAX_ROWS; i++)
             {
@@ -104,6 +117,7 @@ namespace unCal
 
                 v_sp.Children.Add(h_sp);
             }
+            v_sp.Children.Add(new StackPanel { Height = 25 });
         }
 
         private void tilePressed(object sender, MouseButtonEventArgs e)

@@ -7,7 +7,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
 
-namespace TileUpdate
+namespace libWkCal
 {
     public class WeekCalendar
     {
@@ -157,12 +157,14 @@ namespace TileUpdate
 
                     if (isHighlightToday == true && d.Month == dt.Month && d == DateTime.Today)
                     {
-                        GraphicsHelper.drawRectangle(wb, x + 5, y + 2, DAY_WIDTH, DAY_HEIGHT, GraphicsHelper.getColor("PhoneInactiveColor"));
+                        // higlight today
+                        GraphicsHelper.drawBox(wb, x + 5, y + 2, DAY_WIDTH, DAY_HEIGHT, GraphicsHelper.getColor("PhoneForegroundColor"));
                     }
                 }
 
                 if (isHighlightToday == true && wk == thisweek && monday.Month == dt.Month)
                 {
+                    // higlight this week
                     int width = WK_WIDTH + DAY_WIDTH * 7 - 5 * 3;
                     GraphicsHelper.drawRectangle(wb, WK_WIDTH + 5, y + 2, width, DAY_HEIGHT, GraphicsHelper.getColor("PhoneInactiveColor"));
                 }
