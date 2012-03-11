@@ -59,7 +59,6 @@ namespace unCal
 
             PeriodicTask task = new PeriodicTask(TASK_NAME);
             task.Description = "The background task updates Live Tile";
-            task.ExpirationTime = DateTime.Now.AddDays(1);
             ScheduledActionService.Add(task);
         }
 

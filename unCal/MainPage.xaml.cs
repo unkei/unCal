@@ -143,7 +143,7 @@ namespace unCal
         {
             for (int i = 0; i < 12; i++)
             {
-                wc.createCalendarImage(imageName(i + 1, year), new DateTime(year, i + 1, 1), true, true);
+                wc.createCalendarImage(imageName(i + 1, year), new DateTime(year, i + 1, 1), true, force);
             }
         }
 
