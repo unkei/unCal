@@ -83,7 +83,7 @@ namespace unCal
 
             v_sp.Children.Clear();
 
-            v_sp.Children.Add(new StackPanel { Height = 55 });
+            v_sp.Children.Add(new StackPanel { Height = 45 });
 
             for (int i = 0; i < MAX_ROWS; i++)
             {

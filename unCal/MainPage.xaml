@@ -46,7 +46,7 @@
 
         <!--TitlePanel contains the name of the application and page title-->
         <StackPanel x:Name="TitlePanel" MaxHeight="45" Background="Black" Opacity="0.8" VerticalAlignment="Top">
-            <TextBlock x:Name="ApplicationTitle" Text="unCal" Style="{StaticResource PhoneTextNormalStyle}" Margin="12,17,0,18"/>
+            <TextBlock x:Name="ApplicationTitle" Text="unCal" Style="{StaticResource PhoneTextNormalStyle}" Margin="20,7,0,8"/>
         </StackPanel>
     </Grid>
  
