@@ -21,6 +21,9 @@ namespace unCal
         const string FILE_PREFIX = "cal";
         const int TILE_WIDTH = 200;
         const int TILE_HEIGHT = 200;
+        const string LIVETILE_PATH = "Shared\\ShellContent\\unCal.jpg";
+        const string LIVETILE_URI = "isostore:/Shared/ShellContent/unCal.jpg";
+
         AppSettings settings = new AppSettings();
 
         // Constructor
@@ -34,8 +37,9 @@ namespace unCal
         {
             base.OnNavigatedTo(e);
 
-            bool updated = settings.updateIfChanged(CultureInfo.CurrentCulture.ToString(), DateTime.Today);
-            genTiles(DateTime.Now.Year, updated);
+            genTiles(DateTime.Now.Year, settings.updateCultureIfChanged(CultureInfo.CurrentCulture.ToString()));
+            genLiveTile(LIVETILE_PATH, settings.updateLastUpdatedIfChanged(DateTime.Today));
+
             setTileScroller();
             ApplicationTitle.Text = "w" + wc.getWeekNumber(DateTime.Now) + "\t\t" + DateTime.Now.ToString("D").ToUpper();
             if (CultureInfo.CurrentCulture.ToString().StartsWith("ja"))
@@ -56,11 +60,11 @@ namespace unCal
         {
             ShellTile TileToFind = liveTile();
 
-            wc.createCalendarImage("Shared\\ShellContent\\unCal.jpg", DateTime.Now, true, true);
+            genLiveTile(LIVETILE_PATH, true);
 
             StandardTileData tileData = new StandardTileData
             {
-                BackgroundImage = new Uri("isostore:/Shared/ShellContent/unCal.jpg", UriKind.Absolute),
+                BackgroundImage = new Uri(LIVETILE_URI, UriKind.Absolute),
             };
             //tileData.Title = (isLine6Used) ? "                 unCal" : "unCal";
 
@@ -73,6 +77,7 @@ namespace unCal
         private void setTileScroller()
         {
             int year = DateTime.Now.Year;
+            int month = DateTime.Now.Month;
 
             const int MONTHS = 12;
             const int MAX_COLS = 2;
@@ -97,7 +102,12 @@ namespace unCal
 
                     using (IsolatedStorageFile isto = IsolatedStorageFile.GetUserStoreForApplication())
                     {
-                        using (IsolatedStorageFileStream isstr = isto.OpenFile(imageName(i * MAX_COLS + j + 1, year), System.IO.FileMode.Open, System.IO.FileAccess.Read))
+                        string fileName;
+                        if (i * MAX_COLS + j + 1 == month)
+                            fileName = LIVETILE_PATH;
+                        else
+                            fileName = imageName(i * MAX_COLS + j + 1, year);
+                        using (IsolatedStorageFileStream isstr = isto.OpenFile(fileName, System.IO.FileMode.Open, System.IO.FileAccess.Read))
                         {
                             bmp.SetSource(isstr);
                         }
@@ -157,8 +167,13 @@ namespace unCal
         {
             for (int i = 0; i < 12; i++)
             {
-                wc.createCalendarImage(imageName(i + 1, year), new DateTime(year, i + 1, 1), true, force);
+                wc.createCalendarImage(imageName(i + 1, year), new DateTime(year, i + 1, 1), false, force);
             }
+        }
+
+        private void genLiveTile(string filename, bool force=false)
+        {
+            wc.createCalendarImage(filename, DateTime.Now, true, force);
         }
 
         private void refreshButton_Click(object sender, EventArgs e)

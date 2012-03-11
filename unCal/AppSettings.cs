@@ -90,7 +90,7 @@ namespace unCal
             }
         }
 
-        public bool updateIfChanged(string c, DateTime d)
+        public bool updateCultureIfChanged(string c)
         {
             bool ret = false;
 
@@ -99,15 +99,19 @@ namespace unCal
                 CultureSetting = c;
                 ret = true;
             }
+            return ret;
+        }
+
+        public bool updateLastUpdatedIfChanged(DateTime d)
+        {
+            bool ret = false;
 
             if (d != LastUpdated)
             {
                 LastUpdated = d;
                 ret = true;
             }
-
             return ret;
         }
-
     }
 }
