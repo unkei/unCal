@@ -159,7 +159,7 @@ namespace libWkCal
                     }
                 }
 
-                if (isHighlightToday == true && wk == thisweek && monday.Month == dt.Month)
+                if (isHighlightToday == true && wk == thisweek && DateTime.Today.Month == dt.Month)
                 {
                     // higlight this week
                     int width = WK_WIDTH + DAY_WIDTH * 7 - 5 * 3;
