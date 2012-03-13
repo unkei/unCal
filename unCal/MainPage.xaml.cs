@@ -45,33 +45,43 @@ namespace unCal
             if (CultureInfo.CurrentCulture.ToString().StartsWith("ja"))
                 ApplicationTitle.Text += " " + CultureInfo.CurrentCulture.DateTimeFormat.DayNames[int.Parse(DateTime.Now.DayOfWeek.ToString("d"))];
 
-            //if (liveTile() == null)
-            //    pinButton.IsEnabled = true;
-            //else
-            //    pinButton.IsEnabled = false;
-        }
-
-        private ShellTile liveTile()
-        {
-            return ShellTile.ActiveTiles.FirstOrDefault(x => x.NavigationUri.ToString().Contains("DefaultTitle=unCal"));
+            if (liveTile() == null)
+                ((ApplicationBarIconButton)ApplicationBar.Buttons[0]).IsEnabled = true; // enable pinButton
+            else
+                ((ApplicationBarIconButton)ApplicationBar.Buttons[0]).IsEnabled = false; // disable pinButton
         }
 
         private void pinButton_Click(object sender, EventArgs e)
         {
-            ShellTile TileToFind = liveTile();
+            addLiveTile(true);
+        }
 
-            genLiveTile(LIVETILE_PATH, true);
+        private void tilePressed(object sender, MouseButtonEventArgs e)
+        {
+#if DEBUG
+            ScheduledActionService.LaunchForTest("TileUpdate",TimeSpan.FromSeconds(10));
+#endif
 
-            StandardTileData tileData = new StandardTileData
+            Debug.WriteLine("tilePressed");
+            int x = (int)(e.GetPosition((UIElement)sender).X / TILE_WIDTH * 3) - 1;
+            int y = (int)(e.GetPosition((UIElement)sender).Y / TILE_HEIGHT * 3) - 1;
+
+            if (x == 0 && y == 0)
             {
-                BackgroundImage = new Uri(LIVETILE_URI, UriKind.Absolute),
-            };
-            //tileData.Title = (isLine6Used) ? "                 unCal" : "unCal";
-
-            if (TileToFind == null)
-                ShellTile.Create(new Uri("/MainPage.xaml?DefaultTitle=unCal", UriKind.Relative), tileData);
+                tapAnimc.Stop();
+                tapAnimc.Children[0].SetValue(Storyboard.TargetNameProperty, ((Image)sender).Name);
+                tapAnimc.Children[1].SetValue(Storyboard.TargetNameProperty, ((Image)sender).Name);
+                tapAnimc.Begin();
+            }
             else
-                TileToFind.Update(tileData);
+            {
+                tapAnim.Stop();
+                tapAnim.Children[0].SetValue(Storyboard.TargetNameProperty, ((Image)sender).Name);
+                ((DoubleAnimationUsingKeyFrames)tapAnim.Children[0]).KeyFrames[0].SetValue(EasingDoubleKeyFrame.ValueProperty, 15.0 * y);
+                tapAnim.Children[1].SetValue(Storyboard.TargetNameProperty, ((Image)sender).Name);
+                ((DoubleAnimationUsingKeyFrames)tapAnim.Children[1]).KeyFrames[0].SetValue(EasingDoubleKeyFrame.ValueProperty, 15.0 * -x);
+                tapAnim.Begin();
+            }
         }
 
         private void setTileScroller()
@@ -130,40 +140,17 @@ namespace unCal
             v_sp.Children.Add(new StackPanel { Height = 25 });
         }
 
-        private void tilePressed(object sender, MouseButtonEventArgs e)
-        {
-#if DEBUG
-            ScheduledActionService.LaunchForTest("TileUpdate",TimeSpan.FromSeconds(10));
-#endif
-
-            Debug.WriteLine("tilePressed");
-            int x = (int)(e.GetPosition((UIElement)sender).X / TILE_WIDTH * 3) - 1;
-            int y = (int)(e.GetPosition((UIElement)sender).Y / TILE_HEIGHT * 3) - 1;
-
-            if (x == 0 && y == 0)
-            {
-                tapAnimc.Stop();
-                tapAnimc.Children[0].SetValue(Storyboard.TargetNameProperty, ((Image)sender).Name);
-                tapAnimc.Children[1].SetValue(Storyboard.TargetNameProperty, ((Image)sender).Name);
-                tapAnimc.Begin();
-            }
-            else
-            {
-                tapAnim.Stop();
-                tapAnim.Children[0].SetValue(Storyboard.TargetNameProperty, ((Image)sender).Name);
-                ((DoubleAnimationUsingKeyFrames)tapAnim.Children[0]).KeyFrames[0].SetValue(EasingDoubleKeyFrame.ValueProperty, 15.0 * y);
-                tapAnim.Children[1].SetValue(Storyboard.TargetNameProperty, ((Image)sender).Name);
-                ((DoubleAnimationUsingKeyFrames)tapAnim.Children[1]).KeyFrames[0].SetValue(EasingDoubleKeyFrame.ValueProperty, 15.0 * -x);
-                tapAnim.Begin();
-            }
-        }
-
         public string imageName(int month, int year)
         {
             return FILE_PREFIX + month.ToString("d2") + year.ToString("d4") + ".jpg";
         }
 
-        private void genTiles(int year, bool force=false)
+        private ShellTile liveTile()
+        {
+            return ShellTile.ActiveTiles.FirstOrDefault(x => x.NavigationUri.ToString().Contains("DefaultTitle=unCal"));
+        }
+
+        private void genTiles(int year, bool force = false)
         {
             for (int i = 0; i < 12; i++)
             {
@@ -181,5 +168,45 @@ namespace unCal
             genTiles(DateTime.Now.Year, true);
             setTileScroller();
         }
+
+        private void addLiveTile(bool force=false)
+        {
+            ShellTile TileToFind = liveTile();
+
+            genLiveTile(LIVETILE_PATH, force);
+
+            StandardTileData tileData = new StandardTileData
+            {
+                BackgroundImage = new Uri(LIVETILE_URI, UriKind.Absolute),
+            };
+
+            if (TileToFind == null)
+                ShellTile.Create(new Uri("/MainPage.xaml?DefaultTitle=unCal", UriKind.Relative), tileData);
+            else
+                TileToFind.Update(tileData);
+
+            return;
+        }
+
+        private bool updateLiveTile(bool force=false)
+        {
+            ShellTile TileToFind = liveTile();
+            bool ret = false;
+
+            if (TileToFind != null)
+            {
+                genLiveTile(LIVETILE_PATH, force);
+
+                StandardTileData tileData = new StandardTileData
+                {
+                    BackgroundImage = new Uri(LIVETILE_URI, UriKind.Absolute),
+                };
+
+                TileToFind.Update(tileData);
+                ret = true;
+            }
+            return ret;
+        }
+
     }
 }
