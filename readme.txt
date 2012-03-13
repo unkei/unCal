@@ -12,6 +12,11 @@ If you use week numbers for your schedule and often wonder... when is week XX!?,
 
 Update description
 
+v1.1
+- Highlight today and this week
+- Automatic udpate of Live tile
+- Start up time performance improvement
+
 Keyword
 
 Artwork
