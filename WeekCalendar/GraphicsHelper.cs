@@ -12,6 +12,10 @@ namespace libWkCal
         public enum HAlign { CENTER, LEFT, RIGHT };
         public enum StringColor { DIMMED, NORMAL, HIGHLIGHT };
 
+        static public Color foregroundColor = getColor("PhoneForegroundColor");
+        static public Color backgroundColor = getColor("PhoneAccentColor");
+        static public Color highlightColor = getColor("PhoneInactiveColor");
+
         static public Color getColor(string colorname)
         {
             MediaColor mc = (MediaColor)System.Windows.Application.Current.Resources[colorname];
@@ -29,14 +33,14 @@ namespace libWkCal
                 //tb.FontFamily = new FontFamily("Segoe WP");
                 //tb.FontSize = fontsize + 1.0;
                 //y--;
-                tb.Foreground = new SolidColorBrush(getColor("PhoneForegroundColor"));
+                tb.Foreground = new SolidColorBrush(foregroundColor);
                 //tb.Foreground = new SolidColorBrush(getColor("PhoneContrastForegroundColor"));
                 tb.FontWeight = System.Windows.FontWeights.Bold;
                 //tb.TextDecorations = TextDecorations.Underline;
             }
             else
             {
-                tb.Foreground = new SolidColorBrush(getColor("PhoneForegroundColor"));
+                tb.Foreground = new SolidColorBrush(foregroundColor);
                 if (sc == StringColor.DIMMED)
                 {
                     tb.Opacity = 0.5;

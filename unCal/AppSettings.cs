@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO.IsolatedStorage;
+using System.Windows.Media;
 
 namespace unCal
 {
@@ -9,6 +10,8 @@ namespace unCal
 
         const string CultureSettingKeyName = "Culture";
         const string LastUpdatedKeyName = "LastUpdated";
+        const string ForegroundColorKeyName = "ForegroundColor";
+        const string BackgroundColorKeyName = "BackgroundColor";
         const string CultureSettingDefault = "";
         //const DateTime LastUpdatedDefault = DateTime.Today.AddDays(-1); // yesterday
 
@@ -90,6 +93,36 @@ namespace unCal
             }
         }
 
+        public Color ForegroundColor
+        {
+            get
+            {
+                return GetValueOrDefault<Color>(ForegroundColorKeyName, Colors.White);
+            }
+            set
+            {
+                if (AddOrUpdateValue(ForegroundColorKeyName, value))
+                {
+                    Save();
+                }
+            }
+        }
+
+        public Color BackgroundColor
+        {
+            get
+            {
+                return GetValueOrDefault<Color>(BackgroundColorKeyName, Colors.Black);
+            }
+            set
+            {
+                if (AddOrUpdateValue(BackgroundColorKeyName, value))
+                {
+                    Save();
+                }
+            }
+        }
+
         public bool updateCultureIfChanged(string c)
         {
             bool ret = false;
@@ -113,5 +146,23 @@ namespace unCal
             }
             return ret;
         }
+
+        public bool updateColorIfChanged(Color fg, Color bg)
+        {
+            bool ret = false;
+
+            if (fg != ForegroundColor)
+            {
+                ForegroundColor = fg;
+                ret = true;
+            }
+            if (bg != BackgroundColor)
+            {
+                BackgroundColor = bg;
+                ret = true;
+            }
+            return ret;
+        }
+
     }
 }

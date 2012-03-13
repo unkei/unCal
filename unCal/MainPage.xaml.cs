@@ -30,20 +30,24 @@ namespace unCal
         public MainPage()
         {
             InitializeComponent();
-            genTiles(DateTime.Now.Year);
+            genTiles(DateTime.Today.Year);
         }
 
         protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
 
-            genTiles(DateTime.Now.Year, settings.updateCultureIfChanged(CultureInfo.CurrentCulture.ToString()));
-            genLiveTile(LIVETILE_PATH, settings.updateLastUpdatedIfChanged(DateTime.Today));
+            bool isClutureInfoChanged = settings.updateCultureIfChanged(CultureInfo.CurrentCulture.ToString());
+            bool isLastUpdateChanged = settings.updateLastUpdatedIfChanged(DateTime.Today);
+            bool isColorChanged = settings.updateColorIfChanged(GraphicsHelper.foregroundColor, GraphicsHelper.backgroundColor);
+            genTiles(DateTime.Today.Year, isClutureInfoChanged || isColorChanged);
+            updateLiveTile((isClutureInfoChanged || isLastUpdateChanged || isColorChanged));
 
             setTileScroller();
-            ApplicationTitle.Text = "w" + wc.getWeekNumber(DateTime.Now) + "\t\t" + DateTime.Now.ToString("D").ToUpper();
-            if (CultureInfo.CurrentCulture.ToString().StartsWith("ja"))
-                ApplicationTitle.Text += " " + CultureInfo.CurrentCulture.DateTimeFormat.DayNames[int.Parse(DateTime.Now.DayOfWeek.ToString("d"))];
+            ApplicationTitle.Text = "w" + wc.getWeekNumber(DateTime.Today) + "\t\t" + DateTime.Today.ToString("D").ToUpper();
+            if (CultureInfo.CurrentCulture.ToString().StartsWith("ja") ||
+                CultureInfo.CurrentCulture.ToString().StartsWith("zh"))
+                ApplicationTitle.Text += " " + CultureInfo.CurrentCulture.DateTimeFormat.DayNames[int.Parse(DateTime.Today.DayOfWeek.ToString("d"))];
 
             if (liveTile() == null)
                 ((ApplicationBarIconButton)ApplicationBar.Buttons[0]).IsEnabled = true; // enable pinButton
@@ -59,7 +63,7 @@ namespace unCal
         private void tilePressed(object sender, MouseButtonEventArgs e)
         {
 #if DEBUG
-            ScheduledActionService.LaunchForTest("TileUpdate",TimeSpan.FromSeconds(10));
+            //ScheduledActionService.LaunchForTest("TileUpdate",TimeSpan.FromSeconds(10));
 #endif
 
             Debug.WriteLine("tilePressed");
@@ -86,8 +90,8 @@ namespace unCal
 
         private void setTileScroller()
         {
-            int year = DateTime.Now.Year;
-            int month = DateTime.Now.Month;
+            int year = DateTime.Today.Year;
+            int month = DateTime.Today.Month;
 
             const int MONTHS = 12;
             const int MAX_COLS = 2;
@@ -160,12 +164,12 @@ namespace unCal
 
         private void genLiveTile(string filename, bool force=false)
         {
-            wc.createCalendarImage(filename, DateTime.Now, true, force);
+            wc.createCalendarImage(filename, DateTime.Today, true, force);
         }
 
         private void refreshButton_Click(object sender, EventArgs e)
         {
-            genTiles(DateTime.Now.Year, true);
+            genTiles(DateTime.Today.Year, true);
             setTileScroller();
         }
 
@@ -193,10 +197,10 @@ namespace unCal
             ShellTile TileToFind = liveTile();
             bool ret = false;
 
+            genLiveTile(LIVETILE_PATH, force);
+
             if (TileToFind != null)
             {
-                genLiveTile(LIVETILE_PATH, force);
-
                 StandardTileData tileData = new StandardTileData
                 {
                     BackgroundImage = new Uri(LIVETILE_URI, UriKind.Absolute),

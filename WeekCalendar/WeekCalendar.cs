@@ -106,16 +106,19 @@ namespace libWkCal
             WriteableBitmap wb = new WriteableBitmap(TILE_WIDTH, TILE_HEIGHT);
 
             // Draw background in PhoneAccentColor (default tile background color)
-            GraphicsHelper.drawRectangle(wb, 0, 0, TILE_WIDTH, TILE_HEIGHT, GraphicsHelper.getColor("PhoneAccentColor"));
+            GraphicsHelper.drawRectangle(wb, 0, 0, TILE_WIDTH, TILE_HEIGHT, GraphicsHelper.backgroundColor);
 
             // Draw month and year
             GraphicsHelper.drawString(wb, TILE_WIDTH / 2, TOP_MARGIN, dt.ToString("y").ToUpper().Replace(",", " "), GraphicsHelper.StringColor.NORMAL, DAY_FONTSIZE, GraphicsHelper.HAlign.CENTER, "Segoe WP");
+
+            bool isChinese = CultureInfo.CurrentCulture.ToString().StartsWith("zh");
 
             // Draw weekday
             for (int i = 0; i < 7; i++) // starting from Monday
             {
                 string wd = CultureInfo.CurrentCulture.DateTimeFormat.AbbreviatedDayNames[(i + 1) % 7];
                 if (wd.Length > 2) wd = wd.Substring(0, 2); // take first 2 letter if long
+                if (isChinese) wd = wd.Substring(1, 1); // takes only 2nd letter if Chinese
                 int x = DAY_WIDTH * i + DAY_WIDTH - WKDAY_FONTSIZE / 2 + WK_WIDTH + LEFT_MARGIN;
                 int y = MONTH_HEIGHT + TOP_MARGIN;
                 GraphicsHelper.drawString(wb, x - 2, y + 2/*adjust +2*/, wd, GraphicsHelper.StringColor.NORMAL, WKDAY_FONTSIZE, GraphicsHelper.HAlign.CENTER);
@@ -155,7 +158,7 @@ namespace libWkCal
                     if (isHighlightToday == true && d.Month == dt.Month && d == DateTime.Today)
                     {
                         // higlight today
-                        GraphicsHelper.drawBox(wb, x + 5, y + 2, DAY_WIDTH, DAY_HEIGHT, GraphicsHelper.getColor("PhoneForegroundColor"));
+                        GraphicsHelper.drawBox(wb, x + 5, y + 2, DAY_WIDTH, DAY_HEIGHT, GraphicsHelper.foregroundColor);
                     }
                 }
 
@@ -163,7 +166,7 @@ namespace libWkCal
                 {
                     // higlight this week
                     int width = WK_WIDTH + DAY_WIDTH * 7 - 5 * 3;
-                    GraphicsHelper.drawRectangle(wb, WK_WIDTH + 5, y + 2, width, DAY_HEIGHT, GraphicsHelper.getColor("PhoneInactiveColor"));
+                    GraphicsHelper.drawRectangle(wb, WK_WIDTH + 5, y + 2, width, DAY_HEIGHT, GraphicsHelper.highlightColor);
                 }
             }
 
