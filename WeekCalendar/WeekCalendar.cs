@@ -10,22 +10,22 @@ namespace libWkCal
     {
         //enum drawArea { MONTH, WKDAY, WKNUM, DAY };
 
-        const int TILE_WIDTH = 200; //173
-        const int TILE_HEIGHT = 200; //173
+        const int TILE_WIDTH = 200 * 16 / 10; //173
+        const int TILE_HEIGHT = 200 * 16 / 10; //173
 
-        const int TOP_MARGIN = 6;
-        const int LEFT_MARGIN = 2;
-        const int WK_FONTSIZE = 12 + 2;
-        const int DAY_FONTSIZE = 16 + 2;
-        const int MONTH_FONTSIZE = 20 + 2;
-        const int WKDAY_FONTSIZE = 14 + 2;
+        const int TOP_MARGIN = 6 * 16 / 10;
+        const int LEFT_MARGIN = 2 * 16 / 10;
+        const int WK_FONTSIZE = (12 + 2) * 16 / 10;
+        const int DAY_FONTSIZE = (16 + 2) * 16 / 10;
+        const int MONTH_FONTSIZE = (20 + 2) * 16 / 10;
+        const int WKDAY_FONTSIZE = (14 + 2) * 16 / 10;
 
         const int WK_WIDTH = WK_FONTSIZE + LEFT_MARGIN;
-        const int DAY_WIDTH = 22 + 3;
+        const int DAY_WIDTH = (22 + 3) * 16 / 10;
 
-        const int MONTH_HEIGHT = MONTH_FONTSIZE + 6;
-        const int WKDAY_HEIGHT = 19 + 2;
-        const int DAY_HEIGHT = 19 + 3;
+        const int MONTH_HEIGHT = MONTH_FONTSIZE + 6 * 16 / 10;
+        const int WKDAY_HEIGHT = (19 + 2) * 16 / 10;
+        const int DAY_HEIGHT = (19 + 3) * 16 / 10;
 
         public int getWeekNumber(DateTime dt)
         {
